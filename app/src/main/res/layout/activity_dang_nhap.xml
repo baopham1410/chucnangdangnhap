@@ -17,21 +17,21 @@
         android:layout_gravity="center" />
 
     <EditText
-        android:id="@+id/edtEmail"
+        android:id="@+id/etEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Email..."
-        android:drawableStart="@drawable/ic_email"
+        android:drawableStart="@drawable/baseline_mail_24"
         android:padding="10dp"
         android:background="@android:color/transparent" />
 
     <EditText
-        android:id="@+id/edtPassword"
+        android:id="@+id/etPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Pass..."
         android:inputType="textPassword"
-        android:drawableStart="@drawable/ic_password"
+        android:drawableStart="@drawable/baseline_lock_24"
         android:padding="10dp"
         android:background="@android:color/transparent" />
 

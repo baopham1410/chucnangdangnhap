@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@drawable/splash_pic"
+    android:padding="20dp">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:elevation="8dp"
+        app:cardCornerRadius="20dp"
+        app:cardBackgroundColor="@android:color/white"
+        android:padding="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Đăng ký tài khoản"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="@color/orange"
+                android:layout_gravity="center"
+                android:paddingBottom="10dp" />
+
+            <EditText
+                android:id="@+id/etUsername"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Tên đăng nhập"
+                android:drawableStart="@drawable/baseline_edit_24"
+                android:padding="12dp"
+                android:background="@drawable/input_background" />
+
+            <EditText
+                android:id="@+id/etEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Email"
+                android:drawableStart="@drawable/baseline_mail_24"
+                android:padding="12dp"
+                android:background="@drawable/input_background" />
+
+            <EditText
+                android:id="@+id/etPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Mật khẩu"
+                android:inputType="textPassword"
+                android:drawableStart="@drawable/baseline_lock_24"
+                android:padding="12dp"
+                android:background="@drawable/input_background" />
+
+            <EditText
+                android:id="@+id/etConfirmPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Xác nhận mật khẩu"
+                android:inputType="textPassword"
+                android:drawableStart="@drawable/baseline_lock_24"
+                android:padding="12dp"
+                android:background="@drawable/input_background" />
+
+            <Button
+                android:id="@+id/btnRegister"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Đăng ký"
+                android:textAllCaps="false"
+                android:backgroundTint="@color/orange"
+                android:textColor="@android:color/white"
+                android:layout_marginTop="15dp" />
+
+            <!-- Thêm TextView để chuyển sang màn hình Đăng nhập -->
+            <TextView
+                android:id="@+id/tvLogin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Bạn đã có tài khoản? Đăng nhập ngay"
+                android:textSize="14sp"
+                android:textColor="@android:color/holo_blue_dark"
+                android:layout_gravity="center"
+                android:paddingTop="15dp"
+                android:clickable="true"
+                android:focusable="true" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</LinearLayout>
