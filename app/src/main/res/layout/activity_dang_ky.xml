@@ -1,27 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:background="@drawable/splash_pic"
-    android:padding="20dp">
+    android:background="@color/cream"
+    tools:context=".Activity.DangKyActivity">
 
+    <!-- Form Đăng Ký -->
     <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
+        android:layout_width="320dp"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:elevation="8dp"
-        app:cardCornerRadius="20dp"
-        app:cardBackgroundColor="@android:color/white"
-        android:padding="20dp">
+        android:layout_marginTop="80dp"
+        android:background="@color/cream"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="20dp">
 
+            <!-- Tiêu đề -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -32,55 +37,66 @@
                 android:layout_gravity="center"
                 android:paddingBottom="10dp" />
 
+            <!-- Tên đăng nhập -->
             <EditText
                 android:id="@+id/etUsername"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
                 android:hint="Tên đăng nhập"
                 android:drawableStart="@drawable/baseline_edit_24"
-                android:padding="12dp"
-                android:background="@drawable/input_background" />
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:background="@drawable/edit_text_background" />
 
+            <!-- Email -->
             <EditText
                 android:id="@+id/etEmail"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
+                android:layout_marginTop="12dp"
                 android:hint="Email"
                 android:drawableStart="@drawable/baseline_mail_24"
-                android:padding="12dp"
-                android:background="@drawable/input_background" />
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:background="@drawable/edit_text_background" />
 
+            <!-- Mật khẩu -->
             <EditText
                 android:id="@+id/etPassword"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
+                android:layout_marginTop="12dp"
                 android:hint="Mật khẩu"
                 android:inputType="textPassword"
                 android:drawableStart="@drawable/baseline_lock_24"
-                android:padding="12dp"
-                android:background="@drawable/input_background" />
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:background="@drawable/edit_text_background" />
 
+            <!-- Xác nhận mật khẩu -->
             <EditText
                 android:id="@+id/etConfirmPassword"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
+                android:layout_marginTop="12dp"
                 android:hint="Xác nhận mật khẩu"
                 android:inputType="textPassword"
                 android:drawableStart="@drawable/baseline_lock_24"
-                android:padding="12dp"
-                android:background="@drawable/input_background" />
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:background="@drawable/edit_text_background" />
 
+            <!-- Nút đăng ký -->
             <Button
                 android:id="@+id/btnRegister"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Đăng ký"
-                android:textAllCaps="false"
+                android:layout_height="50dp"
+                android:layout_marginTop="20dp"
                 android:backgroundTint="@color/orange"
-                android:textColor="@android:color/white"
-                android:layout_marginTop="15dp" />
+                android:text="Đăng ký"
+                android:textColor="@android:color/white" />
 
-            <!-- Thêm TextView để chuyển sang màn hình Đăng nhập -->
+            <!-- Chuyển sang đăng nhập -->
             <TextView
                 android:id="@+id/tvLogin"
                 android:layout_width="wrap_content"
@@ -94,4 +110,30 @@
                 android:focusable="true" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
-</LinearLayout>
+
+    <!-- Ảnh trang trí -->
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/hatcafe"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/imageView2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintWidth_percent="0.5"
+        app:layout_constraintHeight_percent="0.2"/>
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/socola"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/imageView"
+        app:layout_constraintWidth_percent="0.5"
+        app:layout_constraintHeight_percent="0.2"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
