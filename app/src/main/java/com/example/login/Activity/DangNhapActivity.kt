@@ -53,7 +53,9 @@ class DangNhapActivity : AppCompatActivity() {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Toast.makeText(this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show()
-                    val intent = Intent(this, MainActivity::class.java)
+
+                    // Chuyển sang HomeActivity
+                    val intent = Intent(this, HomeActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     startActivity(intent)
                     finish()
@@ -65,4 +67,5 @@ class DangNhapActivity : AppCompatActivity() {
                 Toast.makeText(this, "Lỗi Firebase: ${e.message}", Toast.LENGTH_LONG).show()
             }
     }
+
 }
