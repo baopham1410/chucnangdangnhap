@@ -1,5 +1,6 @@
 package com.example.login.Activity
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
@@ -16,11 +17,12 @@ class HomeActivity : AppCompatActivity() {
     private val productList = mutableListOf<Product>()
     private val db = FirebaseFirestore.getInstance()
 
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
-        recyclerView = findViewById(R.id.recyclerViewProducts)
+        recyclerView = findViewById(R.id.recyclerViewCat)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         // ⚠️ Không khai báo lại productList ở đây

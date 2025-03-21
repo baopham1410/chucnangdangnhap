@@ -23,6 +23,17 @@ class DangNhapActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_dang_nhap)
+        // Kiểm tra đăng nhập trước đó
+        val sharedPreferences = getSharedPreferences("LoginPrefs", MODE_PRIVATE)
+        val isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false)
+
+        if (isLoggedIn) {
+            val intent = Intent(this, HomeActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
+            return
+        }
 
         // Ánh xạ view
         etEmail = findViewById(R.id.etEmail)
@@ -52,6 +63,14 @@ class DangNhapActivity : AppCompatActivity() {
         FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
+                    // Lưu thông tin đăng nhập
+                    val sharedPreferences = getSharedPreferences("LoginPrefs", MODE_PRIVATE)
+                    val editor = sharedPreferences.edit()
+                    editor.putString("email", email)
+                    editor.putString("password", password)
+                    editor.putBoolean("isLoggedIn", true) // Đánh dấu đã đăng nhập
+                    editor.apply()
+
                     Toast.makeText(this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show()
 
                     // Chuyển sang HomeActivity
@@ -67,5 +86,6 @@ class DangNhapActivity : AppCompatActivity() {
                 Toast.makeText(this, "Lỗi Firebase: ${e.message}", Toast.LENGTH_LONG).show()
             }
     }
+
 
 }

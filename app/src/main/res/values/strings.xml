@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">login</string>
+    <string name="category">category</string>
+    <string name="popular_coffees">popular coffees</string>
+    <string name="Category">Category</string>
+    <string name="Popular_Coffees">Popular Coffees</string>
+    <string name="see_all">Sea All</string>
+    <string name="se_all">See All\n</string>
 </resources>
