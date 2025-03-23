@@ -1,8 +1,8 @@
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="180dp"
-    android:layout_height="250dp"
+    android:layout_width="match_parent"
+    android:layout_height="140dp"
     android:layout_margin="8dp"
     app:cardCornerRadius="20dp"
     app:cardElevation="4dp">
@@ -17,7 +17,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
-            android:contentDescription="Product Image" />
+            android:contentDescription="Product Image"
+            />
 
         <!-- Overlay màu tối -->
         <View
@@ -30,23 +31,35 @@
             android:id="@+id/tvProductName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
+            android:textSize="18sp"
             android:textColor="@android:color/white"
-            android:text="Product Name"
+            android:text="Introducing our new lemonade menu"
             android:textStyle="bold"
-            android:layout_alignParentBottom="true"
-            android:layout_margin="12dp"/>
+            android:layout_margin="16dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"/>
 
-        <!-- Giá sản phẩm -->
+        <!-- Mô tả sản phẩm -->
         <TextView
-            android:id="@+id/tvProductPrice"
+            android:id="@+id/tvProductDescription"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="14sp"
             android:textColor="@android:color/white"
-            android:text="Rp 0.00"
-            android:textStyle="bold"
+            android:text="Try our refreshing lemonade!"
             android:layout_below="@id/tvProductName"
-            android:layout_marginLeft="12dp"/>
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"/>
+        <TextView
+            android:id="@+id/tvProductPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="@android:color/white"
+            android:text="$10.0"
+            android:layout_below="@id/tvProductDescription"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"/>
+
     </RelativeLayout>
 </androidx.cardview.widget.CardView>
