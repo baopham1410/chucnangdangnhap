@@ -1,10 +1,17 @@
 package com.example.login.Activity
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.PopupWindow
 import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -12,6 +19,7 @@ import com.example.login.Adapter.PopularAdapter
 import com.example.login.R
 import com.example.login.Adapter.ProductAdapter
 import com.example.login.Model.Product
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class HomeActivity : AppCompatActivity() {
@@ -31,6 +39,27 @@ class HomeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
+
+        val menuButton: ImageView = findViewById(R.id.imageView2)
+
+        menuButton.setOnClickListener {
+            showPopupMenu(menuButton)
+        }
+        // Thiết lập sự kiện cho nút
+        // Khởi tạo ImageView cho nút chuyển đến DrinkMenuActivity
+        val btnToDrinkDetail: ImageView = findViewById(R.id.btnToDrinkDetail)
+
+        // Thiết lập sự kiện cho nút
+        btnToDrinkDetail.setOnClickListener {
+            Log.d("HomeActivity", "Attempting to open DrinkMenuActivity")
+            try {
+                val intent = Intent(this, DrinkMenuActivity::class.java)
+                startActivity(intent)
+            } catch (e: Exception) {
+                Log.e("HomeActivity", "Error starting DrinkMenuActivity", e)
+                Toast.makeText(this, "Failed to open Drink Menu", Toast.LENGTH_SHORT).show()
+            }
+        }
 
         recyclerViewPopular = findViewById(R.id.recyclerViewPopular)
         recyclerViewPopular.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
@@ -113,6 +142,42 @@ class HomeActivity : AppCompatActivity() {
                 Log.e("Firestore", "Lỗi lấy dữ liệu popular", e)
                 progressBarPopular.visibility = View.GONE
             }
+    }
+    private fun showPopupMenu(view: View) {
+        val inflater = LayoutInflater.from(this)
+        val popupView = inflater.inflate(R.layout.menu_popup, null)
+
+        val popupWindow = PopupWindow(
+            popupView,
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            true
+        )
+
+        popupWindow.elevation = 10f
+        popupWindow.showAsDropDown(view, -100, 20)
+
+        val logout = popupView.findViewById<LinearLayout>(R.id.menu_logout)
+
+        logout.setOnClickListener {
+            popupWindow.dismiss()
+            FirebaseAuth.getInstance().signOut()
+
+            // Xóa trạng thái đăng nhập
+            val sharedPreferences = getSharedPreferences("LoginPrefs", MODE_PRIVATE)
+            val editor = sharedPreferences.edit()
+            editor.clear() // Xóa toàn bộ dữ liệu đăng nhập
+            editor.apply()
+
+            Log.d("Logout", "User logged out successfully")
+
+            // Chuyển về màn hình đăng nhập
+            val intent = Intent(this@HomeActivity, DangNhapActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finishAffinity()
+        }
+
     }
 
 

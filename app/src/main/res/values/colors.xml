@@ -11,4 +11,12 @@
     <color name="darkBrown">#220C01</color>
     <color name="brown">#8B4513</color>
 
+
+    <color name="lightBrown">#D7CCC8</color>
+    <color name="creamBackground">#F5E1DA</color>
+    <color name="textGray">#757575</color>
+    <color name="primary">#FF5722</color> <!-- Màu cam, bạn có thể thay đổi -->
+
+
+
 </resources>
