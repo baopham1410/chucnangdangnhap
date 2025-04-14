@@ -11,8 +11,11 @@ import com.bumptech.glide.Glide
 import com.example.login.Model.Drink
 import com.example.login.R
 
-class DrinkAdapter(private val drinkList: List<Drink>, private val onAddClick: (Drink) -> Unit) :
-    RecyclerView.Adapter<DrinkAdapter.DrinkViewHolder>() {
+class DrinkAdapter(
+    private val drinkList: List<Drink>,
+    private val onAddClick: (Drink) -> Unit,
+    private val onItemClick: (Drink) -> Unit // Callback cho nhấn vào món đồ uống
+) : RecyclerView.Adapter<DrinkAdapter.DrinkViewHolder>() {
 
     class DrinkViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val imgDrink: ImageView = view.findViewById(R.id.imgDrink)
@@ -33,13 +36,19 @@ class DrinkAdapter(private val drinkList: List<Drink>, private val onAddClick: (
         holder.tvDrinkDesc.text = drink.description
         holder.tvDrinkPrice.text = drink.price
 
-        // Nếu bạn sử dụng URL hình ảnh
+        // Tải hình ảnh
         Glide.with(holder.imgDrink.context)
-            .load(drink.imageResId) // Sử dụng Glide hoặc Picasso để tải ảnh
+            .load(drink.imageResId) // Sử dụng imageResId để tải hình ảnh
             .into(holder.imgDrink)
 
+        // Sự kiện nhấn vào món đồ uống
+        holder.itemView.setOnClickListener {
+            onItemClick(drink) // Gọi callback khi nhấn vào món đồ uống
+        }
+
+        // Sự kiện nhấn nút thêm
         holder.btnAdd.setOnClickListener {
-            onAddClick(drink)
+            onAddClick(drink) // Gọi callback khi nhấn nút thêm
         }
     }
 
