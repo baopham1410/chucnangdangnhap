@@ -4,7 +4,7 @@ import android.os.Parcel
 import android.os.Parcelable
 
 data class Drink(
-    
+    val id: String = "", // Thêm thuộc tính ID kiểu String, có giá trị mặc định là ""
     val name: String = "",
     val description: String = "",
     val price: String = "",
@@ -12,7 +12,7 @@ data class Drink(
     var category: String = ""
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
-        parcel.readString() ?: "",
+        parcel.readString() ?: "", // Đọc ID từ Parcel
         parcel.readString() ?: "",
         parcel.readString() ?: "",
         parcel.readString() ?: "",
@@ -20,6 +20,7 @@ data class Drink(
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(id) // Ghi ID vào Parcel
         parcel.writeString(name)
         parcel.writeString(description)
         parcel.writeString(price)

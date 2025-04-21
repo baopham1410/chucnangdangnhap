@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="coffeeSize" type="id" />
+    <item name="sizeOptions" type="id" />
+    <item name="small" type="id" />
+    <item name="medium" type="id" />
+    <item name="large" type="id" />
+    <item name="quantityLabel" type="id" />
+    <item name="decreaseBtn" type="id" />
+    <item name="quantity" type="id" />
+    <item name="increaseBtn" type="id" />
+    <item name="addToCartBtn" type="id" />
+    <item name="toolbar" type="id" />
+    <item name="clearCartButton" type="id" />
+    <item name="profile_text" type="id" />
+    <item name="home_text" type="id" />
+    <item name="drink_menu_icon" type="id" />
+</resources>

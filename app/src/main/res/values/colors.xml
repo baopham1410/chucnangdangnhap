@@ -16,6 +16,9 @@
     <color name="creamBackground">#F5E1DA</color>
     <color name="textGray">#757575</color>
     <color name="primary">#FF5722</color> <!-- Màu cam, bạn có thể thay đổi -->
+    <!-- Các màu mới cần thêm -->
+    <color name="darkGray">#4A4A4A</color>
+    <color name="lightGray">#E0E0E0</color>
 
 
 

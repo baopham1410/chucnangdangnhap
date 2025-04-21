@@ -1,0 +1,22 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/home"
+        android:icon="@null"
+    android:title="" />
+    <item
+        android:id="@+id/drinkMenu"
+        android:icon="@null"
+    android:title="" />
+    <item
+        android:id="@+id/favorites"
+        android:icon="@null"
+    android:title="" />
+    <item
+        android:id="@+id/myCart"
+        android:icon="@null"
+    android:title="" />
+    <item
+        android:id="@+id/profile"
+        android:icon="@null"
+    android:title="" />
+</menu>

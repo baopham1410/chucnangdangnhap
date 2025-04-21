@@ -8,13 +8,15 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.request.RequestOptions
 import com.example.login.Model.Drink
 import com.example.login.R
 
 class DrinkAdapter(
     private val drinkList: List<Drink>,
-    private val onAddClick: (Drink) -> Unit,
-    private val onItemClick: (Drink) -> Unit // Callback cho nhấn vào món đồ uống
+    private val onAddClick: (Drink) -> Unit // Callback cho nhấn vào nút thêm (để xem chi tiết)
 ) : RecyclerView.Adapter<DrinkAdapter.DrinkViewHolder>() {
 
     class DrinkViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -32,23 +34,31 @@ class DrinkAdapter(
 
     override fun onBindViewHolder(holder: DrinkViewHolder, position: Int) {
         val drink = drinkList[position]
+
+        // Thiết lập dữ liệu văn bản
         holder.tvDrinkName.text = drink.name
         holder.tvDrinkDesc.text = drink.description
         holder.tvDrinkPrice.text = drink.price
 
-        // Tải hình ảnh
+        // Tạo RequestOptions để xử lý hình ảnh
+        val requestOptions = RequestOptions()
+            .centerCrop() // Cắt và căn giữa để hình ảnh lấp đầy không gian
+            .transform(CenterCrop(), RoundedCorners(12)) // Thêm góc bo nếu không có background drawable riêng
+
+        // Tải hình ảnh với các tùy chọn đã thiết lập
         Glide.with(holder.imgDrink.context)
-            .load(drink.imageResId) // Sử dụng imageResId để tải hình ảnh
+            .load(drink.imageResId)
+            .apply(requestOptions)
             .into(holder.imgDrink)
 
-        // Sự kiện nhấn vào món đồ uống
+        // Thiết lập sự kiện nhấn vào toàn bộ item (không chỉ nút thêm)
         holder.itemView.setOnClickListener {
-            onItemClick(drink) // Gọi callback khi nhấn vào món đồ uống
+            onAddClick(drink)
         }
 
-        // Sự kiện nhấn nút thêm
+        // Sự kiện nhấn nút thêm (để xem chi tiết)
         holder.btnAdd.setOnClickListener {
-            onAddClick(drink) // Gọi callback khi nhấn nút thêm
+            onAddClick(drink)
         }
     }
 

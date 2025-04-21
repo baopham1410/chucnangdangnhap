@@ -31,6 +31,8 @@
         <activity android:name=".Activity.HomeActivity" />
         <activity android:name=".Activity.DrinkMenuActivity"/>
         <activity android:name=".Activity.DrinkDetailActivity"/>
+        <activity android:name=".Activity.CartActivity"/>
+
 
     </application>
 

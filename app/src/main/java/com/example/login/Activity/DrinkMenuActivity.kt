@@ -28,8 +28,7 @@ class DrinkMenuActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         adapter = DrinkAdapter(drinkList, { drink ->
-            Toast.makeText(this, "${drink.name} added!", Toast.LENGTH_SHORT).show()
-        }, { drink ->
+            // Khi nút "thêm" (btnAdd) được nhấn, chuyển đến DrinkDetailActivity
             val intent = Intent(this, DrinkDetailActivity::class.java)
             intent.putExtra("drink", drink)
             startActivity(intent)
