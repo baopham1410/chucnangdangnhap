@@ -15,4 +15,9 @@
     <item name="profile_text" type="id" />
     <item name="home_text" type="id" />
     <item name="drink_menu_icon" type="id" />
+    <item name="cartRecyclerView" type="id" />
+    <item name="cartSummaryCard" type="id" />
+    <item name="emptyCartView" type="id" />
+    <item name="browseMenuButton" type="id" />
+    <item name="checkoutButton" type="id" />
 </resources>

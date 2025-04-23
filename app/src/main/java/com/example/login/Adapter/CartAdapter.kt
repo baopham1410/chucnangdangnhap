@@ -52,11 +52,12 @@ class CartAdapter(
         Glide.with(holder.itemView.context)
             .load(currentItem.imageResId)
             .into(holder.itemImage)
+
         holder.decreaseButton.setOnClickListener {
             val currentQuantity = holder.quantityText.text.toString().toInt()
             if (currentQuantity > 1) {
                 val newQuantity = currentQuantity - 1
-                onQuantityChanged(position, newQuantity)
+                onQuantityChanged(holder.adapterPosition, newQuantity) // Sử dụng holder.adapterPosition
                 holder.quantityText.text = newQuantity.toString()
                 holder.itemTotalPrice.text = formatPrice(currentItem.price * newQuantity)
             }
@@ -65,13 +66,13 @@ class CartAdapter(
         holder.increaseButton.setOnClickListener {
             val currentQuantity = holder.quantityText.text.toString().toInt()
             val newQuantity = currentQuantity + 1
-            onQuantityChanged(position, newQuantity)
+            onQuantityChanged(holder.adapterPosition, newQuantity) // Sử dụng holder.adapterPosition
             holder.quantityText.text = newQuantity.toString()
             holder.itemTotalPrice.text = formatPrice(currentItem.price * newQuantity)
         }
 
         holder.removeButton.setOnClickListener {
-            onItemRemoved(holder.adapterPosition) // Sử dụng holder.adapterPosition để lấy vị trí chính xác
+            onItemRemoved(holder.adapterPosition) // Sử dụng holder.adapterPosition
         }
     }
 

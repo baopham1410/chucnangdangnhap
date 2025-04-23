@@ -32,6 +32,7 @@
         <activity android:name=".Activity.DrinkMenuActivity"/>
         <activity android:name=".Activity.DrinkDetailActivity"/>
         <activity android:name=".Activity.CartActivity"/>
+        <activity android:name=".Activity.CheckoutActivity"/>
 
 
     </application>
