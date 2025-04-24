@@ -219,7 +219,7 @@ class DrinkDetailActivity : AppCompatActivity() {
         bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.home -> {
-                    val intent = Intent(this, MainActivity::class.java)
+                    val intent = Intent(this, HomeActivity::class.java)
                     startActivity(intent)
                     true
                 }

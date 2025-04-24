@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.login.Adapter.DrinkAdapter
 import com.example.login.Model.Drink
 import com.example.login.R
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.android.material.tabs.TabLayout
 
@@ -17,6 +18,7 @@ class DrinkMenuActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: DrinkAdapter
+    private lateinit var bottomNavigationView: BottomNavigationView
     private val drinkList = mutableListOf<Drink>()
     private val originalDrinkList = mutableListOf<Drink>() // Danh sách gốc để lọc
 
@@ -25,6 +27,7 @@ class DrinkMenuActivity : AppCompatActivity() {
         setContentView(R.layout.activity_drink_menu)
 
         recyclerView = findViewById(R.id.recyclerViewDrinks)
+        bottomNavigationView = findViewById(R.id.bottomNavigationView)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         adapter = DrinkAdapter(drinkList, { drink ->
@@ -37,6 +40,7 @@ class DrinkMenuActivity : AppCompatActivity() {
 
         fetchDrinksFromFirestore()
         setupTabLayout()
+        setupBottomNavigationView()
     }
 
     private fun fetchDrinksFromFirestore() {
@@ -55,6 +59,38 @@ class DrinkMenuActivity : AppCompatActivity() {
                 Log.w("DrinkMenuActivity", "Error getting documents: ", exception)
                 Toast.makeText(this, "Failed to load drinks", Toast.LENGTH_SHORT).show()
             }
+    }
+    private fun setupBottomNavigationView() {
+        bottomNavigationView.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.home -> {
+                    val intent = Intent(this, HomeActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+                R.id.drinkMenu -> { // Đã đổi ID cho phù hợp với file menu
+                    val intent = Intent(this, DrinkMenuActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+//                R.id.favorites -> {
+//                    val intent = Intent(this, FavoritesActivity::class.java)
+//                    startActivity(intent)
+//                    true
+//                }
+                R.id.myCart -> {
+                    val intent = Intent(this, CartActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+//                R.id.profile -> {
+//                    val intent = Intent(this, ProfileActivity::class.java)
+//                    startActivity(intent)
+//                    true
+//                }
+                else -> false
+            }
+        }
     }
 
     private fun setupTabLayout() {

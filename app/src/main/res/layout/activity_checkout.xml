@@ -300,7 +300,8 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Save Address"
-                                android:textSize="12sp" />
+                                android:textSize="12sp"
+                                android:visibility="gone"/>
 
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/cancelNewAddressButton"
@@ -349,28 +350,33 @@
                             android:text="Add"
                             android:textColor="@color/orange"
                             android:textSize="14sp"
-                            android:textStyle="bold" />
+                            android:textStyle="bold"
+                            tools:ignore="DuplicateIds" />
                     </LinearLayout>
 
-                    <RadioGroup
-                        android:id="@+id/paymentMethodGroup"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp">
+                        android:layout_marginTop="12dp"
+                        android:orientation="vertical">
 
                         <LinearLayout
+                            android:id="@+id/creditCardLayout"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:background="@drawable/payment_method_background"
                             android:orientation="horizontal"
-                            android:padding="12dp">
+                            android:padding="12dp"
+                            android:clickable="true"
+                            android:focusable="true">
 
-                            <RadioButton
-                                android:id="@+id/creditCardOption"
+                            <CheckBox
+                                android:id="@+id/creditCardCheckBox"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:buttonTint="@color/orange"
-                                android:checked="true" />
+                                android:clickable="false"
+                                android:focusable="false" />
 
                             <ImageView
                                 android:layout_width="36dp"
@@ -390,18 +396,23 @@
                         </LinearLayout>
 
                         <LinearLayout
+                            android:id="@+id/cashLayout"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
                             android:background="@drawable/payment_method_background"
                             android:orientation="horizontal"
-                            android:padding="12dp">
+                            android:padding="12dp"
+                            android:clickable="true"
+                            android:focusable="true">
 
-                            <RadioButton
-                                android:id="@+id/cashOption"
+                            <CheckBox
+                                android:id="@+id/cashCheckBox"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:buttonTint="@color/orange" />
+                                android:buttonTint="@color/orange"
+                                android:clickable="false"
+                                android:focusable="false" />
 
                             <ImageView
                                 android:layout_width="36dp"
@@ -419,9 +430,10 @@
                                 android:textColor="@color/black"
                                 android:textSize="16sp" />
                         </LinearLayout>
-                    </RadioGroup>
+                    </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
+
 
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
@@ -449,9 +461,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
+                        android:nestedScrollingEnabled="false"
                         tools:itemCount="2"
-                        tools:listitem="@layout/item_checkout_product"
-                        android:nestedScrollingEnabled="false"/>
+                        tools:listitem="@layout/item_checkout_product" />
 
                     <View
                         android:layout_width="match_parent"

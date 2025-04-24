@@ -18,7 +18,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.login.Adapter.PopularAdapter
 import com.example.login.R
 import com.example.login.Adapter.ProductAdapter
+import com.example.login.MainActivity
 import com.example.login.Model.Product
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -30,6 +32,7 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var progressBar: ProgressBar
     private lateinit var progressBarCategory: ProgressBar
     private lateinit var progressBarPopular: ProgressBar
+    private lateinit var bottomNavigationView : BottomNavigationView
 
     private val popularList = mutableListOf<Product>()
     private val productList = mutableListOf<Product>()
@@ -71,6 +74,7 @@ class HomeActivity : AppCompatActivity() {
         progressBar = findViewById(R.id.progressBar)
         progressBarCategory = findViewById(R.id.progressBarCategory)
         progressBarPopular = findViewById(R.id.progressBarPopular)
+        bottomNavigationView = findViewById(R.id.bottomNavigationView)
 
         recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
 
@@ -85,6 +89,7 @@ class HomeActivity : AppCompatActivity() {
 
         fetchProductsFromFirestore()
         fetchPopularProductsFromFirestore()
+        setupBottomNavigationView()
     }
 
     private fun fetchProductsFromFirestore() {
@@ -118,6 +123,38 @@ class HomeActivity : AppCompatActivity() {
                 progressBarCategory.visibility = View.GONE
                 progressBarPopular.visibility = View.GONE
             }
+    }
+    private fun setupBottomNavigationView() {
+        bottomNavigationView.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.home -> {
+                    val intent = Intent(this, HomeActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+                R.id.drinkMenu -> { // Đã đổi ID cho phù hợp với file menu
+                    val intent = Intent(this, DrinkMenuActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+//                R.id.favorites -> {
+//                    val intent = Intent(this, FavoritesActivity::class.java)
+//                    startActivity(intent)
+//                    true
+//                }
+                R.id.myCart -> {
+                    val intent = Intent(this, CartActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+//                R.id.profile -> {
+//                    val intent = Intent(this, ProfileActivity::class.java)
+//                    startActivity(intent)
+//                    true
+//                }
+                else -> false
+            }
+        }
     }
     private fun fetchPopularProductsFromFirestore() {
         progressBarPopular.visibility = View.VISIBLE
