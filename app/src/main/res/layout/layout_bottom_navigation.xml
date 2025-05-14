@@ -141,6 +141,8 @@
 
 
             <ImageView
+                android:id="@+id/favorites"
+
 
                 android:layout_width="22dp"
 

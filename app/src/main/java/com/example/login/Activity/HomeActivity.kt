@@ -147,11 +147,16 @@ class HomeActivity : AppCompatActivity() {
                     startActivity(intent)
                     true
                 }
-//                R.id.profile -> {
-//                    val intent = Intent(this, ProfileActivity::class.java)
-//                    startActivity(intent)
-//                    true
-//                }
+                R.id.favorites -> {
+                    val intent = Intent(this, FavoritesActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+                R.id.profile -> {
+                    val intent = Intent(this, ProfileActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
                 else -> false
             }
         }

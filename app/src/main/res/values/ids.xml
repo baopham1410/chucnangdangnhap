@@ -20,4 +20,33 @@
     <item name="emptyCartView" type="id" />
     <item name="browseMenuButton" type="id" />
     <item name="checkoutButton" type="id" />
+    <item name="placeOrderButton" type="id" />
+    <item name="nameInputLayout" type="id" />
+    <item name="nameEditText" type="id" />
+    <item name="phoneInputLayout" type="id" />
+    <item name="phoneEditText" type="id" />
+    <item name="emailInputLayout" type="id" />
+    <item name="emailEditText" type="id" />
+    <item name="changeAddressBtn" type="id" />
+    <item name="savedAddressContainer" type="id" />
+    <item name="addressName" type="id" />
+    <item name="addressDetails" type="id" />
+    <item name="editAddressButton" type="id" />
+    <item name="addNewAddressTextView" type="id" />
+    <item name="newAddressLayout" type="id" />
+    <item name="streetAddressEditText" type="id" />
+    <item name="cityEditText" type="id" />
+    <item name="postalCodeEditText" type="id" />
+    <item name="deliveryNotesEditText" type="id" />
+    <item name="saveNewAddressButton" type="id" />
+    <item name="cancelNewAddressButton" type="id" />
+    <item name="addPaymentBtn" type="id" />
+    <item name="creditCardLayout" type="id" />
+    <item name="creditCardCheckBox" type="id" />
+    <item name="cashLayout" type="id" />
+    <item name="cashCheckBox" type="id" />
+    <item name="couponCodeInputLayout" type="id" />
+    <item name="couponCodeEditText" type="id" />
+    <item name="applyCouponButton" type="id" />
+    <item name="termsAndConditionsTextView" type="id" />
 </resources>

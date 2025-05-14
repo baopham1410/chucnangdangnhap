@@ -9,6 +9,7 @@
     <LinearLayout
         android:id="@+id/headerLayout"
         android:layout_width="match_parent"
+        android:layout_marginTop="16dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="16dp"
@@ -58,6 +59,8 @@
         app:tabIndicatorColor="@color/brown"
         app:tabSelectedTextColor="@color/brown"
         app:tabTextColor="@color/brown"
+        app:tabMode="scrollable"
+        app:textAllCaps="false"
         tools:layout_editor_absoluteX="0dp"
         tools:ignore="NotSibling" />
 

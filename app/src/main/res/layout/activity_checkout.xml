@@ -3,11 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+
     android:layout_height="match_parent"
     android:background="@color/cream">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
+
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/darkBrown"
@@ -17,6 +19,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
+            android:layout_marginTop="16dp"
             android:layout_height="match_parent"
             android:gravity="center_vertical"
             android:orientation="horizontal">
@@ -430,6 +433,7 @@
                                 android:textColor="@color/black"
                                 android:textSize="16sp" />
                         </LinearLayout>
+
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>

@@ -20,6 +20,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.FieldValue
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -170,17 +171,26 @@ class CheckoutActivity : AppCompatActivity() {
 
         editAddressButton.setOnClickListener {
             // TODO: Implement logic to edit the saved address
-            Toast.makeText(this, "Chức năng sửa địa chỉ đang được phát triển", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Chức năng sửa địa chỉ đang được phát triển", Toast.LENGTH_SHORT)
+                .show()
         }
 
         applyCouponButton.setOnClickListener {
             // TODO: Implement logic to apply coupon
-            Toast.makeText(this, "Chức năng áp dụng mã giảm giá đang được phát triển", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                this,
+                "Chức năng áp dụng mã giảm giá đang được phát triển",
+                Toast.LENGTH_SHORT
+            ).show()
         }
 
         addPaymentBtnTextView.setOnClickListener {
             // TODO: Implement logic to add new payment methods
-            Toast.makeText(this, "Chức năng thêm phương thức thanh toán đang được phát triển", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                this,
+                "Chức năng thêm phương thức thanh toán đang được phát triển",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -204,7 +214,8 @@ class CheckoutActivity : AppCompatActivity() {
                 }
                 .addOnFailureListener { e ->
                     Log.w("Firestore", "Error getting cart items for checkout", e)
-                    Toast.makeText(this, "Lỗi khi tải thông tin giỏ hàng", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Lỗi khi tải thông tin giỏ hàng", Toast.LENGTH_SHORT)
+                        .show()
                 }
         }
     }
@@ -256,7 +267,8 @@ class CheckoutActivity : AppCompatActivity() {
         val postalCode = postalCodeEditText.text.toString().trim()
 
         if (street.isEmpty() || city.isEmpty() || postalCode.isEmpty()) {
-            Toast.makeText(this, "Vui lòng điền đầy đủ thông tin địa chỉ", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Vui lòng điền đầy đủ thông tin địa chỉ", Toast.LENGTH_SHORT)
+                .show()
             return
         }
 
@@ -297,6 +309,7 @@ class CheckoutActivity : AppCompatActivity() {
         return currencyFormatter.format(price)
     }
 
+
     private fun saveOrderDetails() {
         val street = streetAddressEditText.text.toString().trim()
         val city = cityEditText.text.toString().trim()
@@ -310,7 +323,8 @@ class CheckoutActivity : AppCompatActivity() {
         Log.d("CheckoutDebug", "Phương thức thanh toán cuối cùng: $paymentMethod")
 
         if (paymentMethod.isEmpty()) {
-            Toast.makeText(this, "Vui lòng chọn một phương thức thanh toán", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Vui lòng chọn một phương thức thanh toán", Toast.LENGTH_SHORT)
+                .show()
             return
         }
 
@@ -321,8 +335,11 @@ class CheckoutActivity : AppCompatActivity() {
         }
 
         currentUser?.uid?.let { userId ->
+            val orderId = System.currentTimeMillis().toString()
+
             val orderData = hashMapOf(
                 "userId" to userId,
+                "orderId" to orderId,
                 "fullName" to fullName,
                 "phoneNumber" to phoneNumber,
                 "email" to email,
@@ -343,41 +360,100 @@ class CheckoutActivity : AppCompatActivity() {
                         "imageResId" to item.imageResId
                     )
                 },
-                "timestamp" to Timestamp.now()
+                "timestamp" to Timestamp.now(),
+                "paymentStatus" to if (paymentMethod == "Credit Card") "Pending" else "Chưa thanh toán" // Thêm trạng thái thanh toán
             )
 
             firestore.collection("checkouts")
                 .add(orderData as Map<String, Any>)
                 .addOnSuccessListener { documentReference ->
-                    Log.d("Firestore", "Order details saved with ID: ${documentReference.id}")
-                    Toast.makeText(this, "Đặt hàng thành công!", Toast.LENGTH_SHORT).show()
+                    Log.d(
+                        "Firestore",
+                        "Order details saved with ID: ${documentReference.id}, Order ID: $orderId"
+                    )
+                    Toast.makeText(
+                        this,
+                        "Đặt hàng thành công! Mã đơn hàng: $orderId",
+                        Toast.LENGTH_LONG
+                    ).show()
 
-                    // Chuyển về HomeActivity
-                    val intent = Intent(this, HomeActivity::class.java)
-                    startActivity(intent)
-                    finish() // Đóng CheckoutActivity
+                    if (paymentMethod == "Credit Card") {
+                        // **CHUYỂN SANG ThanhToanQRActivity NẾU CHỌN CREDIT CARD**
+                        val intentToQR = Intent(this, QRCodePaymentActivity::class.java)
+                        intentToQR.putExtra("totalAmount", totalValue) // Truyền tổng tiền
+                        intentToQR.putExtra("orderId", orderId)       // Truyền ID đơn hàng (nếu cần)
+                        startActivity(intentToQR)
+                    } else {
+                        // **CHUYỂN VỀ HomeActivity NẾU CHỌN PHƯƠNG THỨC KHÁC**
+                        val intentToHome = Intent(this, HomeActivity::class.java)
+                        startActivity(intentToHome)
+                        finish() // Kết thúc CheckoutActivity
+                    }
 
-                    // Xóa sản phẩm đã đặt trong giỏ hàng
-                    firestore.collection("cart_items")
-                        .whereEqualTo("userId", userId)
-                        .get()
-                        .addOnSuccessListener { querySnapshot ->
-                            val batch = firestore.batch()
-                            for (document in querySnapshot.documents) {
-                                batch.delete(document.reference)
-                            }
-                            batch.commit()
-                                .addOnSuccessListener {
-                                    Log.d("Firestore", "Giỏ hàng đã được xóa sau khi đặt hàng")
+                    // **CÁC BƯỚC CẬP NHẬT KHO VÀ XÓA GIỎ HÀNG VẪN GIỮ NGUYÊN**
+                    val batch = firestore.batch()
+
+                    for (cartItem in cartItemsList) {
+                        val drinkDocumentRef =
+                            firestore.collection("drink").document(cartItem.drinkId)
+                        batch.update(
+                            drinkDocumentRef,
+                            "quantity",
+                            FieldValue.increment(-cartItem.quantity.toLong())
+                        )
+                    }
+
+                    batch.commit()
+                        .addOnSuccessListener {
+                            Log.d("Firestore", "Đã cập nhật số lượng kho sau khi đặt hàng")
+
+                            firestore.collection("cart_items")
+                                .whereEqualTo("userId", userId)
+                                .get()
+                                .addOnSuccessListener { querySnapshot ->
+                                    val cartBatch = firestore.batch()
+                                    for (document in querySnapshot.documents) {
+                                        cartBatch.delete(document.reference)
+                                    }
+                                    cartBatch.commit()
+                                        .addOnSuccessListener {
+                                            Log.d("Firestore", "Giỏ hàng đã được xóa sau khi đặt hàng")
+                                            if (paymentMethod != "Credit Card") {
+                                                finish() // Kết thúc CheckoutActivity sau khi xóa giỏ hàng nếu không chuyển sang QR
+                                            }
+                                        }
+                                        .addOnFailureListener { e ->
+                                            Log.e(
+                                                "Firestore",
+                                                "Lỗi khi xóa giỏ hàng sau khi đặt hàng",
+                                                e
+                                            )
+                                            Toast.makeText(
+                                                this,
+                                                "Lỗi khi xóa giỏ hàng",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                            // Có thể xử lý lỗi xóa giỏ hàng ở đây
+                                        }
                                 }
                                 .addOnFailureListener { e ->
-                                    Log.e("Firestore", "Lỗi khi xóa giỏ hàng sau khi đặt hàng", e)
-                                    Toast.makeText(this, "Lỗi khi xóa giỏ hàng", Toast.LENGTH_SHORT).show()
+                                    Log.e("Firestore", "Lỗi khi truy vấn giỏ hàng để xóa", e)
+                                    Toast.makeText(
+                                        this,
+                                        "Lỗi khi truy vấn giỏ hàng",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    // Có thể xử lý lỗi truy vấn giỏ hàng ở đây
                                 }
                         }
                         .addOnFailureListener { e ->
-                            Log.e("Firestore", "Lỗi khi truy vấn giỏ hàng để xóa", e)
-                            Toast.makeText(this, "Lỗi khi truy vấn giỏ hàng", Toast.LENGTH_SHORT).show()
+                            Log.e("Firestore", "Lỗi khi cập nhật số lượng kho", e)
+                            Toast.makeText(
+                                this,
+                                "Lỗi khi cập nhật số lượng kho",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            // Có thể xử lý lỗi cập nhật kho ở đây
                         }
                 }
                 .addOnFailureListener { e ->

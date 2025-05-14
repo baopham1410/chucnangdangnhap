@@ -19,6 +19,9 @@
     <!-- Các màu mới cần thêm -->
     <color name="darkGray">#4A4A4A</color>
     <color name="lightGray">#E0E0E0</color>
+    <color name="orange_light">#FFDAB9</color>
+    <color name="darkGreen">#008000</color>
+    <color name="red">#FF0000</color>
 
 
 

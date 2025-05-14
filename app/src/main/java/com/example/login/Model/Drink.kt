@@ -4,28 +4,35 @@ import android.os.Parcel
 import android.os.Parcelable
 
 data class Drink(
-    val id: String = "", // Thêm thuộc tính ID kiểu String, có giá trị mặc định là ""
+    val id: String = "",
     val name: String = "",
     val description: String = "",
     val price: String = "",
     val imageResId: String = "",
-    var category: String = ""
+    var category: String = "",
+    var documentId: String? = null,
+    var quantity: Int = 0 // Thêm trường quantity kiểu Int, có giá trị mặc định là 0
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
-        parcel.readString() ?: "", // Đọc ID từ Parcel
         parcel.readString() ?: "",
         parcel.readString() ?: "",
         parcel.readString() ?: "",
-        parcel.readString() ?: ""
+        parcel.readString() ?: "",
+        parcel.readString() ?: "",
+        parcel.readString() ?: "",
+        parcel.readString(), // Đọc documentId từ Parcel
+        parcel.readInt() // Đọc quantity từ Parcel
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(id) // Ghi ID vào Parcel
+        parcel.writeString(id)
         parcel.writeString(name)
         parcel.writeString(description)
         parcel.writeString(price)
         parcel.writeString(imageResId)
         parcel.writeString(category)
+        parcel.writeString(documentId)
+        parcel.writeInt(quantity) // Ghi quantity vào Parcel
     }
 
     override fun describeContents(): Int {

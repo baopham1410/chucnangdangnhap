@@ -2,6 +2,7 @@ package com.example.login.Activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -13,6 +14,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.login.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FirebaseFirestore
 
 class DangKyActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,8 +55,8 @@ class DangKyActivity : AppCompatActivity() {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Toast.makeText(this, "Đăng ký thành công!", Toast.LENGTH_SHORT).show()
-
-                    // Chuyển về màn hình Đăng nhập
+                    saveUserToDatabase(username, email) // Gọi hàm lưu vào Firestore
+                    // Chuyển về màn hình Đăng nhập (đã có trong saveUserToDatabase hoặc sau đó)
                     val intent = Intent(this, DangNhapActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP // Xóa activity hiện tại khỏi stack
                     startActivity(intent)
@@ -66,22 +68,31 @@ class DangKyActivity : AppCompatActivity() {
     }
 
     private fun saveUserToDatabase(username: String, email: String) {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val database = FirebaseDatabase.getInstance().getReference("Users")
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        Log.d("DangKy", "Saving user to Firestore: UID = $userId, Username = $username, Email = $email")
+        if (userId != null) {
+            val firestore = FirebaseFirestore.getInstance()
+            val userMap = hashMapOf(
+                "uid" to userId,
+                "fullName" to username, // Lưu username dưới tên "fullName"
+                "email" to email
+            )
 
-        val user = hashMapOf(
-            "id" to userId,
-            "username" to username,
-            "email" to email
-        )
-
-        database.child(userId).setValue(user).addOnSuccessListener {
-            Toast.makeText(this, "Đăng ký thành công!", Toast.LENGTH_SHORT).show()
-            finish() // Quay về màn hình trước (hoặc chuyển sang LoginActivity)
-        }.addOnFailureListener {
-            Toast.makeText(this, "Lưu dữ liệu thất bại!", Toast.LENGTH_SHORT).show()
+            firestore.collection("users").document(userId)
+                .set(userMap)
+                .addOnSuccessListener {
+                    Toast.makeText(this, "Đăng ký thành công và thông tin người dùng đã được lưu!", Toast.LENGTH_SHORT).show()
+                    finish() // Quay về màn hình trước (hoặc chuyển sang LoginActivity)
+                }.addOnFailureListener { e ->
+                    Log.e("DangKy", "Lỗi khi lưu thông tin người dùng vào Firestore: ${e.message}")
+                    Toast.makeText(this, "Lỗi: Lưu thông tin người dùng thất bại!", Toast.LENGTH_SHORT).show()
+                }
+        } else {
+            Log.e("DangKy", "Không thể lấy UID của người dùng sau khi đăng ký.")
+            Toast.makeText(this, "Lỗi: Không thể lấy thông tin người dùng.", Toast.LENGTH_SHORT).show()
         }
     }
+
 
 
 }
