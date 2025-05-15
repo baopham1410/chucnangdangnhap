@@ -133,10 +133,11 @@ class DrinkDetailActivity : AppCompatActivity() {
             firestore.collection("users")
                 .document(userId)
                 .collection("favorite_drinks")
-                .whereEqualTo("drinkId", drinkId)
+                .whereEqualTo("drinkId", currentDrink?.documentId) // Sử dụng currentDrink?.documentId
                 .get()
                 .addOnSuccessListener { querySnapshot ->
                     isFavorite = !querySnapshot.isEmpty
+                    Log.d("FavoriteCheck", "Sản phẩm ${currentDrink?.documentId} có phải là yêu thích: $isFavorite")
                     updateFavoriteButtonUI()
                 }
                 .addOnFailureListener { e ->
@@ -149,7 +150,6 @@ class DrinkDetailActivity : AppCompatActivity() {
             updateFavoriteButtonUI()
         }
     }
-
     private fun updateFavoriteButtonUI() {
         if (isFavorite) {
             favoriteButton.setImageResource(R.drawable.ic_favorite_red)
@@ -274,7 +274,7 @@ class DrinkDetailActivity : AppCompatActivity() {
                 .collection("favorite_drinks")
 
             if (isFavorite) {
-                val favoriteItem = hashMapOf("drinkId" to drink.documentId)
+                val favoriteItem = hashMapOf("drinkId" to drink.documentId) // Sử dụng drink.documentId
                 favoriteRef.add(favoriteItem)
                     .addOnSuccessListener {
                         Toast.makeText(this, "Đã thêm vào yêu thích", Toast.LENGTH_SHORT).show()
@@ -285,7 +285,7 @@ class DrinkDetailActivity : AppCompatActivity() {
                         updateFavoriteButtonUI()
                     }
             } else {
-                favoriteRef.whereEqualTo("drinkId", drink.documentId)
+                favoriteRef.whereEqualTo("drinkId", drink.documentId) // Sử dụng drink.documentId
                     .get()
                     .addOnSuccessListener { querySnapshot ->
                         if (!querySnapshot.isEmpty) {
@@ -311,7 +311,6 @@ class DrinkDetailActivity : AppCompatActivity() {
             Toast.makeText(this, "Bạn cần đăng nhập để sử dụng tính năng yêu thích", Toast.LENGTH_SHORT).show()
         }
     }
-
     private fun setupBottomNavigationView() {
         bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
@@ -394,6 +393,12 @@ class DrinkDetailActivity : AppCompatActivity() {
             loadCartQuantity(currentDrink!!.id.toString())
             if (drinkListener == null) {
                 startDrinkDetailsListener(it)
+            }
+            // Thêm log để kiểm tra drinkId
+            val currentDrinkId = currentDrink?.id?.toString()
+            Log.d("FavoriteCheck", "onResume - Kiểm tra drinkId: $currentDrinkId")
+            currentDrinkId?.let { drinkId ->
+                checkIfDrinkIsFavorite(drinkId)
             }
         }
     }

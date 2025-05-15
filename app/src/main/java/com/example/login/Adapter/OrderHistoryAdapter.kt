@@ -22,6 +22,7 @@ class OrderHistoryAdapter(
         val orderDateTextView: TextView = itemView.findViewById(R.id.orderDateTextView)
         val totalAmountTextView: TextView = itemView.findViewById(R.id.totalAmountTextView)
         val orderStatusTextView: TextView = itemView.findViewById(R.id.orderStatusTextView) // Thêm TextView này
+        val shippingStatusTextView: TextView = itemView.findViewById(R.id.shippingStatusTextView)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -35,10 +36,24 @@ class OrderHistoryAdapter(
         holder.orderIdTextView.text = "Đơn hàng #${currentOrder.orderId.takeLast(5)}"
         holder.orderDateTextView.text = "Đặt ngày: ${currentOrder.orderDate}"
         holder.totalAmountTextView.text = currencyFormatter.format(currentOrder.totalAmount)
-        holder.orderStatusTextView.text = currentOrder.paymentStatus // Hiển thị trạng thái
+        holder.orderStatusTextView.text = currentOrder.paymentStatus
+
+        // Gán trạng thái vận chuyển
+        holder.shippingStatusTextView.text = "Trạng thái: ${getShippingStatusText(currentOrder.shippingStatus)}"
 
         holder.itemView.setOnClickListener {
             onItemClick(currentOrder.orderId)
+        }
+    }
+
+    private fun getShippingStatusText(status: String): String {
+        return when (status) {
+            "pending" -> "Chờ xử lý"
+            "processing" -> "Đang xử lý"
+            "shipping" -> "Đang giao"
+            "delivered" -> "Đã giao"
+            "cancelled" -> "Đã hủy"
+            else -> status
         }
     }
 

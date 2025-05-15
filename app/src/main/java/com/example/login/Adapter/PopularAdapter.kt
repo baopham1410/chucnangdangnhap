@@ -34,7 +34,7 @@ class PopularAdapter(private val popularList: List<Product>) : RecyclerView.Adap
 
         // Hiển thị tên và giá sản phẩm
         holder.tvProductName.text = product.name
-        holder.tvProductPrice.text = "$${product.price}"
+        holder.tvProductPrice.text = "${product.price} đ"
     }
 
     override fun getItemCount(): Int = popularList.size

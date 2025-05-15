@@ -6,6 +6,7 @@ plugins {
 
     alias(libs.plugins.google.gms.google.services)
 
+
 // Thêm parcelize
 
     id ("kotlin-parcelize") // Thêm dòng này

@@ -41,12 +41,13 @@
                 android:id="@+id/orderStatusTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingVertical="4dp"
-                android:paddingHorizontal="8dp"
                 android:background="@drawable/rounded_corner_orange_light"
-                android:textColor="@color/orange"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"
+                android:textColor="@color/darkBrown"
                 android:textSize="12sp"
                 tools:text="Đã giao" />
+
 
         </LinearLayout>
 
@@ -58,6 +59,15 @@
             android:textSize="14sp"
             android:textColor="@color/darkGray"
             tools:text="Đặt ngày: 24/04/2025" />
+
+        <TextView
+            android:id="@+id/shippingStatusTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textSize="14sp"
+            android:textColor="@color/darkGray"
+            tools:text="Trạng thái: Đang giao" />
 
         <View
             android:layout_width="match_parent"

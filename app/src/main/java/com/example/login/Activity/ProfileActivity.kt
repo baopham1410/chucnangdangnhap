@@ -96,15 +96,18 @@ class ProfileActivity : AppCompatActivity() {
                         val orderId = document.getString("orderId") ?: ""
                         val timestamp = document.getTimestamp("timestamp")
                         val totalAmount = document.getDouble("total") ?: 0.0
-                        val paymentStatus = document.getString("paymentStatus") ?: "Đang xử lý" // Lấy trạng thái
+                        val paymentStatus = document.getString("paymentStatus") ?: "Đang xử lý"
+                        val shippingStatus = document.getString("shippingStatus") ?: "Chờ xử lý" // Lấy trạng thái vận chuyển
+
+                        Log.d("OrderHistory", "Order ID: $orderId, Payment Status: $paymentStatus, Shipping Status: $shippingStatus") // Kiểm tra log
 
                         val formattedDate = timestamp?.let {
                             val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
                             sdf.format(Date(it.seconds * 1000))
                         } ?: ""
 
-                        // Cập nhật Model Order để bao gồm paymentStatus
-                        val order = Order(orderId, formattedDate, totalAmount, paymentStatus)
+                        // Cập nhật Model Order để bao gồm shippingStatus
+                        val order = Order(orderId, formattedDate, totalAmount, paymentStatus, shippingStatus)
                         orderList.add(order)
                     }
                     orderHistoryAdapter.notifyDataSetChanged()

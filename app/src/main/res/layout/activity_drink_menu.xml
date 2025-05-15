@@ -39,7 +39,7 @@
             android:layout_marginStart="16dp"
             android:background="@drawable/dark_brown"
             android:padding="12dp"
-            app:srcCompat="@drawable/settings" />
+            app:srcCompat="@drawable/icon_menu" />
     </LinearLayout>
 
     <com.google.android.material.tabs.TabLayout

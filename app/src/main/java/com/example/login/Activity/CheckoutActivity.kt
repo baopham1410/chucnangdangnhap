@@ -17,6 +17,7 @@ import com.example.login.Model.CartItem
 import com.example.login.R
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.Timestamp
@@ -40,10 +41,10 @@ class CheckoutActivity : AppCompatActivity() {
     private lateinit var deliveryNotesEditText: TextInputEditText
     private lateinit var saveNewAddressButton: MaterialButton
     private lateinit var cancelNewAddressButton: MaterialButton
-    private lateinit var creditCardLayout: LinearLayout // Thay vì RadioGroup và RadioButton
-    private lateinit var cashLayout: LinearLayout       // Thay vì RadioGroup và RadioButton
-    private lateinit var creditCardCheckBox: CheckBox   // Thay vì RadioGroup và RadioButton
-    private lateinit var cashCheckBox: CheckBox       // Thay vì RadioGroup và RadioButton
+    private lateinit var creditCardLayout: LinearLayout
+    private lateinit var cashLayout: LinearLayout
+    private lateinit var creditCardCheckBox: CheckBox
+    private lateinit var cashCheckBox: CheckBox
     private lateinit var placeOrderButton: MaterialButton
     private lateinit var orderItemsRecyclerView: RecyclerView
     private lateinit var checkoutProductAdapter: CheckoutProductAdapter
@@ -55,7 +56,7 @@ class CheckoutActivity : AppCompatActivity() {
     private lateinit var addressDetailsTextView: TextView
     private lateinit var editAddressButton: ImageButton
     private lateinit var addPaymentBtnTextView: TextView
-    private lateinit var couponCodeInputLayout: com.google.android.material.textfield.TextInputLayout
+    private lateinit var couponCodeInputLayout: TextInputLayout
     private lateinit var couponCodeEditText: TextInputEditText
     private lateinit var applyCouponButton: MaterialButton
     private lateinit var termsAndConditionsTextView: TextView
@@ -64,6 +65,7 @@ class CheckoutActivity : AppCompatActivity() {
     private val firestore = FirebaseFirestore.getInstance()
     private val currentUser = auth.currentUser
     private var cartItemsList: List<CartItem> = emptyList()
+    private var isEditingAddress = false // Biến để theo dõi trạng thái chỉnh sửa địa chỉ
 
     private val currencyFormatter = NumberFormat.getCurrencyInstance(Locale("vi", "VN"))
     private val DELIVERY_FEE = 15000.0
@@ -97,12 +99,15 @@ class CheckoutActivity : AppCompatActivity() {
         deliveryNotesEditText = findViewById(R.id.deliveryNotesEditText)
         saveNewAddressButton = findViewById(R.id.saveNewAddressButton)
         cancelNewAddressButton = findViewById(R.id.cancelNewAddressButton)
-        creditCardLayout = findViewById(R.id.creditCardLayout) // Ánh xạ LinearLayout
-        cashLayout = findViewById(R.id.cashLayout)             // Ánh xạ LinearLayout
-        creditCardCheckBox = findViewById(R.id.creditCardCheckBox) // Ánh xạ CheckBox
-        cashCheckBox = findViewById(R.id.cashCheckBox)             // Ánh xạ CheckBox
+        creditCardLayout = findViewById(R.id.creditCardLayout)
+        cashLayout = findViewById(R.id.cashLayout)
+        creditCardCheckBox = findViewById(R.id.creditCardCheckBox)
+        cashCheckBox = findViewById(R.id.cashCheckBox)
         placeOrderButton = findViewById(R.id.placeOrderButton)
         orderItemsRecyclerView = findViewById(R.id.orderItemsRecyclerView)
+        checkoutProductAdapter = CheckoutProductAdapter(cartItemsList)
+        orderItemsRecyclerView.adapter = checkoutProductAdapter
+        orderItemsRecyclerView.layoutManager = LinearLayoutManager(this)
         subtotalText = findViewById(R.id.subtotalText)
         deliveryFeeText = findViewById(R.id.deliveryFeeText)
         taxText = findViewById(R.id.taxText)
@@ -120,32 +125,29 @@ class CheckoutActivity : AppCompatActivity() {
         saveNewAddressButton.visibility = View.GONE
     }
 
-    private fun setupRecyclerView() {
-        orderItemsRecyclerView.layoutManager = LinearLayoutManager(this)
-        checkoutProductAdapter = CheckoutProductAdapter(cartItemsList)
-        orderItemsRecyclerView.adapter = checkoutProductAdapter
-    }
-
     private fun setupClickListeners() {
         backButton.setOnClickListener { finish() }
 
         changeAddressBtn.setOnClickListener {
             savedAddressContainer.visibility = View.GONE
             newAddressLayout.visibility = View.VISIBLE
+            isEditingAddress = false // Người dùng đang nhập địa chỉ mới
+            saveNewAddressButton.text = "Lưu địa chỉ giao hàng"
         }
 
         addNewAddressTextView.setOnClickListener {
             savedAddressContainer.visibility = View.GONE
             newAddressLayout.visibility = View.VISIBLE
+            isEditingAddress = false // Người dùng đang nhập địa chỉ mới
+            saveNewAddressButton.text = "Lưu địa chỉ giao hàng"
         }
 
         cancelNewAddressButton.setOnClickListener {
             newAddressLayout.visibility = View.GONE
             savedAddressContainer.visibility = View.VISIBLE
+            isEditingAddress = false
+            saveNewAddressButton.text = "Lưu địa chỉ giao hàng"
         }
-
-        // Loại bỏ setOnCheckedChangeListener cho RadioGroup
-        // paymentMethodGroup.setOnCheckedChangeListener { _, checkedId -> ... }
 
         creditCardLayout.setOnClickListener {
             creditCardCheckBox.isChecked = true
@@ -166,17 +168,28 @@ class CheckoutActivity : AppCompatActivity() {
         }
 
         saveNewAddressButton.setOnClickListener {
-            saveNewDeliveryAddress()
+            if (isEditingAddress) {
+                updateDeliveryAddress()
+            } else {
+                saveNewDeliveryAddress()
+            }
         }
 
         editAddressButton.setOnClickListener {
-            // TODO: Implement logic to edit the saved address
-            Toast.makeText(this, "Chức năng sửa địa chỉ đang được phát triển", Toast.LENGTH_SHORT)
-                .show()
+            val currentAddress = addressDetailsTextView.text.toString()
+            val parts = currentAddress.split(", ")
+            if (parts.size == 3) {
+                streetAddressEditText.setText(parts[0].trim())
+                cityEditText.setText(parts[1].trim())
+                postalCodeEditText.setText(parts[2].trim())
+            }
+            savedAddressContainer.visibility = View.GONE
+            newAddressLayout.visibility = View.VISIBLE
+            isEditingAddress = true
+            saveNewAddressButton.text = "Cập nhật địa chỉ"
         }
 
         applyCouponButton.setOnClickListener {
-            // TODO: Implement logic to apply coupon
             Toast.makeText(
                 this,
                 "Chức năng áp dụng mã giảm giá đang được phát triển",
@@ -185,7 +198,6 @@ class CheckoutActivity : AppCompatActivity() {
         }
 
         addPaymentBtnTextView.setOnClickListener {
-            // TODO: Implement logic to add new payment methods
             Toast.makeText(
                 this,
                 "Chức năng thêm phương thức thanh toán đang được phát triển",
@@ -209,7 +221,6 @@ class CheckoutActivity : AppCompatActivity() {
                         val imageResId = document.getString("imageResId") ?: ""
                         CartItem(documentId, drinkId, name, price, quantity, imageResId)
                     }
-                    setupRecyclerView()
                     calculateAndDisplayTotals()
                 }
                 .addOnFailureListener { e ->
@@ -243,13 +254,19 @@ class CheckoutActivity : AppCompatActivity() {
                             addressDetailsTextView.text = "$deliveryAddress, $city, $postalCode"
                             savedAddressContainer.visibility = View.VISIBLE
                             newAddressLayout.visibility = View.GONE
+                            isEditingAddress = false
+                            saveNewAddressButton.text = "Lưu địa chỉ giao hàng"
                         } else {
                             newAddressLayout.visibility = View.VISIBLE
                             savedAddressContainer.visibility = View.GONE
+                            isEditingAddress = false
+                            saveNewAddressButton.text = "Lưu địa chỉ giao hàng"
                         }
                     } else {
                         newAddressLayout.visibility = View.VISIBLE
                         savedAddressContainer.visibility = View.GONE
+                        isEditingAddress = false
+                        saveNewAddressButton.text = "Lưu địa chỉ giao hàng"
                     }
                 }
                 .addOnFailureListener { e ->
@@ -257,6 +274,8 @@ class CheckoutActivity : AppCompatActivity() {
                     Toast.makeText(this, "Error loading user data", Toast.LENGTH_SHORT).show()
                     newAddressLayout.visibility = View.VISIBLE
                     savedAddressContainer.visibility = View.GONE
+                    isEditingAddress = false
+                    saveNewAddressButton.text = "Lưu địa chỉ giao hàng"
                 }
         }
     }
@@ -276,17 +295,49 @@ class CheckoutActivity : AppCompatActivity() {
             firestore.collection("users").document(userId)
                 .update(
                     "deliveryAddress", street,
-                    "deliveryName", "Home", // You can let the user name the address later
+                    "deliveryName", "Home", // Bạn có thể cho phép người dùng đặt tên địa chỉ sau
                     "deliveryCity", city,
                     "deliveryPostalCode", postalCode
                 )
                 .addOnSuccessListener {
                     Toast.makeText(this, "Địa chỉ giao hàng đã được lưu", Toast.LENGTH_SHORT).show()
-                    loadSavedAddress() // Reload the address to update the UI
+                    loadSavedAddress() // Tải lại địa chỉ để cập nhật UI
                 }
                 .addOnFailureListener { e ->
-                    Log.e("Firestore", "Error updating delivery address", e)
+                    Log.e("Firestore", "Lỗi khi cập nhật địa chỉ giao hàng", e)
                     Toast.makeText(this, "Lỗi khi lưu địa chỉ giao hàng", Toast.LENGTH_SHORT).show()
+                }
+        }
+    }
+
+    private fun updateDeliveryAddress() {
+        val street = streetAddressEditText.text.toString().trim()
+        val city = cityEditText.text.toString().trim()
+        val postalCode = postalCodeEditText.text.toString().trim()
+
+        if (street.isEmpty() || city.isEmpty() || postalCode.isEmpty()) {
+            Toast.makeText(this, "Vui lòng điền đầy đủ thông tin địa chỉ", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        currentUser?.uid?.let { userId ->
+            firestore.collection("users").document(userId)
+                .update(
+                    "deliveryAddress", street,
+                    "deliveryName", "Home", // Giữ nguyên hoặc cho phép người dùng thay đổi
+                    "deliveryCity", city,
+                    "deliveryPostalCode", postalCode
+                )
+                .addOnSuccessListener {
+                    Toast.makeText(this, "Địa chỉ giao hàng đã được cập nhật", Toast.LENGTH_SHORT).show()
+                    loadSavedAddress() // Tải lại địa chỉ để cập nhật UI
+                    isEditingAddress = false
+                    saveNewAddressButton.text = "Lưu địa chỉ giao hàng"
+                }
+                .addOnFailureListener { e ->
+                    Log.e("Firestore", "Lỗi khi cập nhật địa chỉ giao hàng", e)
+                    Toast.makeText(this, "Lỗi khi cập nhật địa chỉ giao hàng", Toast.LENGTH_SHORT)
+                        .show()
                 }
         }
     }
@@ -308,7 +359,6 @@ class CheckoutActivity : AppCompatActivity() {
     private fun formatPrice(price: Double): String {
         return currencyFormatter.format(price)
     }
-
 
     private fun saveOrderDetails() {
         val street = streetAddressEditText.text.toString().trim()
@@ -361,7 +411,7 @@ class CheckoutActivity : AppCompatActivity() {
                     )
                 },
                 "timestamp" to Timestamp.now(),
-                "paymentStatus" to if (paymentMethod == "Credit Card") "Pending" else "Chưa thanh toán" // Thêm trạng thái thanh toán
+                "paymentStatus" to if (paymentMethod == "Credit Card") "Pending" else "Chưa thanh toán"
             )
 
             firestore.collection("checkouts")
@@ -378,19 +428,16 @@ class CheckoutActivity : AppCompatActivity() {
                     ).show()
 
                     if (paymentMethod == "Credit Card") {
-                        // **CHUYỂN SANG ThanhToanQRActivity NẾU CHỌN CREDIT CARD**
                         val intentToQR = Intent(this, QRCodePaymentActivity::class.java)
-                        intentToQR.putExtra("totalAmount", totalValue) // Truyền tổng tiền
-                        intentToQR.putExtra("orderId", orderId)       // Truyền ID đơn hàng (nếu cần)
+                        intentToQR.putExtra("totalAmount", totalValue)
+                        intentToQR.putExtra("orderId", orderId)
                         startActivity(intentToQR)
                     } else {
-                        // **CHUYỂN VỀ HomeActivity NẾU CHỌN PHƯƠNG THỨC KHÁC**
                         val intentToHome = Intent(this, HomeActivity::class.java)
                         startActivity(intentToHome)
                         finish() // Kết thúc CheckoutActivity
                     }
 
-                    // **CÁC BƯỚC CẬP NHẬT KHO VÀ XÓA GIỎ HÀNG VẪN GIỮ NGUYÊN**
                     val batch = firestore.batch()
 
                     for (cartItem in cartItemsList) {
