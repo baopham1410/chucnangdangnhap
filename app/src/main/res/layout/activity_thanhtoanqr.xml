@@ -3,28 +3,52 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center">
+    android:gravity="center"
+    android:padding="16dp"> <TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Quét mã QR để thanh toán"
+    android:textSize="20sp" android:textStyle="bold"
+    android:layout_marginBottom="24dp" />
+
+    <ImageView
+        android:id="@+id/qrCodeImageView"
+        android:layout_width="280dp" android:layout_height="280dp"
+        android:scaleType="fitCenter"
+        android:background="@android:color/white" /> <TextView
+        android:id="@+id/totalAmountTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Tổng tiền: Đang tải..." android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"/> <TextView
+        android:id="@+id/orderIdTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Mã đơn hàng: Đang tải..." android:textSize="18sp"
+        android:textColor="@color/black"/>
+
+    <TextView
+        android:id="@+id/bankInfoTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Thông tin ngân hàng: Đang tải..." android:gravity="center"
+        android:textSize="16sp"
+        android:lineSpacingExtra="4dp"
+        android:textColor="@color/black"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Quét mã QR để thanh toán"
-        android:textSize="18sp"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginTop="16dp"
+        android:text="Vui lòng hoàn tất thanh toán. Nội dung chuyển khoản là [Mã đơn hàng] của bạn."
+        android:gravity="center"
+        android:textSize="16sp"
+        android:textColor="@color/black"/>
 
-    <ImageView
-        android:id="@+id/qrCodeImageView"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
-        android:scaleType="fitCenter"
-        android:src="@drawable/qr" />
-    <TextView
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="16dp"
-    android:text="Vui lòng hoàn tất thanh toán trong thời gian quy định."
-    android:gravity="center"
-    android:textSize="16sp" />
     <com.google.android.material.button.MaterialButton
         android:id="@+id/paymentDoneButton"
         android:layout_width="wrap_content"

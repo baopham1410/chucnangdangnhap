@@ -1,6 +1,5 @@
 package com.example.login.Activity
 
-
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -16,6 +15,7 @@ import com.example.login.R
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -31,6 +31,9 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
     private val orderList = mutableListOf<Order>()
+    private var userListener: ListenerRegistration? = null
+    private var orderHistoryListener: ListenerRegistration? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,66 +58,93 @@ class ProfileActivity : AppCompatActivity() {
         orderHistoryRecyclerView.adapter = orderHistoryAdapter
 
         setupBottomNavigationView()
-        loadUserProfile()
-        loadOrderHistory()
+        loadUserProfileRealtime()
+        loadOrderHistoryRealtime()
     }
 
-    private fun loadUserProfile() {
+    override fun onStart() {
+        super.onStart()
+        loadUserProfileRealtime() // Gọi hàm lắng nghe thay đổi người dùng
+        loadOrderHistoryRealtime() // Gọi hàm lắng nghe thay đổi lịch sử đơn hàng
+    }
+
+    override fun onStop() {
+        super.onStop()
+        userListener?.remove()
+        userListener = null
+        orderHistoryListener?.remove()
+        orderHistoryListener = null
+    }
+
+    private fun loadUserProfileRealtime() {
         val currentUser = auth.currentUser
-        Log.d("Profile", "Loading profile for UID: ${currentUser?.uid}")
-        currentUser?.let { user ->
-            firestore.collection("users").document(user.uid)
-                .get()
-                .addOnSuccessListener { document ->
-                    Log.d("Profile", "Firestore document loaded: ${document.data}")
-                    if (document.exists()) {
-                        val fullName = document.getString("fullName")
-                        Log.d("Profile", "Full Name from Firestore: $fullName")
-                        profileNameTextView.text = fullName ?: "Người dùng"
-                        profileEmailTextView.text = document.getString("email") ?: ""
-                        // Load ảnh đại diện nếu có
-                    } else {
-                        Log.d("Profile", "Document for UID ${user.uid} không tồn tại trong Firestore.")
-                    }
+        currentUser?.uid?.let { userId ->
+            val userDocumentRef = firestore.collection("users").document(userId)
+            userListener = userDocumentRef.addSnapshotListener { documentSnapshot, e ->
+                if (e != null) {
+                    Log.e("Profile", "Lỗi khi lắng nghe thông tin người dùng", e)
+                    return@addSnapshotListener
                 }
-                .addOnFailureListener { e ->
-                    Log.e("Profile", "Lỗi khi tải thông tin người dùng từ Firestore", e)
+
+                if (documentSnapshot != null && documentSnapshot.exists()) {
+                    val fullName = documentSnapshot.getString("fullName")
+                    profileNameTextView.text = fullName ?: "Người dùng"
+                    profileEmailTextView.text = documentSnapshot.getString("email") ?: ""
+                    // Cập nhật ảnh đại diện nếu có sự thay đổi
+                } else {
+                    Log.d("Profile", "Không có thông tin người dùng cập nhật.")
                 }
+            }
         }
     }
 
-    private fun loadOrderHistory() {
+    private fun getPaymentStatusText(status: String): String {
+        return when (status) {
+            "pending" -> "Chờ Thanh Toán"
+            "paid" -> "Đã Thanh Toán"
+            "unpaid" -> "Chưa Thanh Toán"
+            "refunded" -> "Đã Hoàn Tiền"
+            else -> status // Trả về nguyên trạng nếu không khớp
+        }
+    }
+
+    private fun loadOrderHistoryRealtime() {
         val currentUser = auth.currentUser
         currentUser?.uid?.let { userId ->
-            firestore.collection("checkouts")
+            val ordersCollectionRef = firestore.collection("checkouts")
                 .whereEqualTo("userId", userId)
                 .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
-                .get()
-                .addOnSuccessListener { querySnapshot ->
+
+            orderHistoryListener = ordersCollectionRef.addSnapshotListener { querySnapshot, e ->
+                if (e != null) {
+                    Log.e("Profile", "Lỗi khi lắng nghe lịch sử đơn hàng", e)
+                    return@addSnapshotListener
+                }
+
+                if (querySnapshot != null) {
                     orderList.clear()
                     for (document in querySnapshot) {
                         val orderId = document.getString("orderId") ?: ""
                         val timestamp = document.getTimestamp("timestamp")
                         val totalAmount = document.getDouble("total") ?: 0.0
-                        val paymentStatus = document.getString("paymentStatus") ?: "Đang xử lý"
-                        val shippingStatus = document.getString("shippingStatus") ?: "Chờ xử lý" // Lấy trạng thái vận chuyển
+                        val paymentStatusEng = document.getString("paymentStatus") ?: "Đang xử lý" // Lấy trạng thái tiếng Anh
+                        val shippingStatus = document.getString("shippingStatus") ?: "Chờ xử lý"
 
-                        Log.d("OrderHistory", "Order ID: $orderId, Payment Status: $paymentStatus, Shipping Status: $shippingStatus") // Kiểm tra log
+                        val paymentStatusVi = getPaymentStatusText(paymentStatusEng) // Chuyển đổi sang tiếng Việt
 
                         val formattedDate = timestamp?.let {
                             val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
                             sdf.format(Date(it.seconds * 1000))
                         } ?: ""
 
-                        // Cập nhật Model Order để bao gồm shippingStatus
-                        val order = Order(orderId, formattedDate, totalAmount, paymentStatus, shippingStatus)
+                        val order = Order(orderId, formattedDate, totalAmount, paymentStatusVi, shippingStatus)
                         orderList.add(order)
                     }
                     orderHistoryAdapter.notifyDataSetChanged()
+                } else {
+                    Log.d("Profile", "Không có lịch sử đơn hàng cập nhật.")
                 }
-                .addOnFailureListener { e ->
-                    Log.e("Profile", "Lỗi khi tải lịch sử đơn hàng", e)
-                }
+            }
         }
     }
 

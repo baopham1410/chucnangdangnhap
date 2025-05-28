@@ -22,6 +22,8 @@
     <color name="orange_light">#FFDAB9</color>
     <color name="darkGreen">#008000</color>
     <color name="red">#FF0000</color>
+    <color name="darkText">#212121</color>
+    <color name="mediumText">#757575</color>
 
 
 

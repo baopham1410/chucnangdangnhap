@@ -6,4 +6,6 @@
     <string name="Popular_Coffees">Popular Coffees</string>
     <string name="see_all">Sea All</string>
     <string name="se_all">See All\n</string>
+    <string name="default_notification_channel_id">fcm_default_channel</string>
+    <string name="fcm_message">FCM Message</string>
 </resources>

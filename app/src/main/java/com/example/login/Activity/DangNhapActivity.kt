@@ -18,6 +18,7 @@ class DangNhapActivity : AppCompatActivity() {
     private lateinit var etPassword: EditText
     private lateinit var btnLogin: Button
     private lateinit var registerText: TextView
+    private lateinit var forgotPasswordTextView: TextView // Khai báo biến
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,9 +41,15 @@ class DangNhapActivity : AppCompatActivity() {
         etPassword = findViewById(R.id.etPassword)
         btnLogin = findViewById(R.id.btnLogin)
         registerText = findViewById(R.id.tvRegister)
+        forgotPasswordTextView = findViewById(R.id.tvForgotPassword) // Ánh xạ view quên mật khẩu
 
         registerText.setOnClickListener {
             val intent = Intent(this, DangKyActivity::class.java)
+            startActivity(intent)
+        }
+
+        forgotPasswordTextView.setOnClickListener { // Listener cho quên mật khẩu
+            val intent = Intent(this, ForgotPasswordActivity::class.java)
             startActivity(intent)
         }
 
@@ -86,6 +93,4 @@ class DangNhapActivity : AppCompatActivity() {
                 Toast.makeText(this, "Lỗi Firebase: ${e.message}", Toast.LENGTH_LONG).show()
             }
     }
-
-
 }

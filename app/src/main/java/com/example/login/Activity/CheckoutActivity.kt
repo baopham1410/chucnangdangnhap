@@ -152,7 +152,7 @@ class CheckoutActivity : AppCompatActivity() {
         creditCardLayout.setOnClickListener {
             creditCardCheckBox.isChecked = true
             cashCheckBox.isChecked = false
-            selectedPaymentMethod = "Credit Card"
+            selectedPaymentMethod = "Bank Transfer"
             Log.d("CheckoutDebug", "Phương thức thanh toán đã chọn: Credit Card (CheckBox)")
         }
 
@@ -379,14 +379,26 @@ class CheckoutActivity : AppCompatActivity() {
         }
 
         val fullAddress = if (newAddressLayout.visibility == View.VISIBLE) {
+            // Lấy từ các trường nhập liệu nếu người dùng đang nhập địa chỉ mới
+            if (street.isEmpty() || city.isEmpty() || postalCode.isEmpty()) {
+                Toast.makeText(this, "Vui lòng điền đầy đủ thông tin địa chỉ mới", Toast.LENGTH_SHORT).show()
+                return
+            }
             "$street, $city, $postalCode"
         } else {
+            // Lấy từ TextView địa chỉ đã lưu
             addressDetailsTextView.text.toString()
         }
 
-        currentUser?.uid?.let { userId ->
-            val orderId = System.currentTimeMillis().toString()
+        // Cần đảm bảo có thông tin địa chỉ trước khi đặt hàng
+        if (fullAddress.isEmpty() || fullName.isEmpty() || phoneNumber.isEmpty() || email.isEmpty()) {
+            Toast.makeText(this, "Vui lòng điền đầy đủ thông tin giao hàng", Toast.LENGTH_SHORT).show()
+            return
+        }
 
+        currentUser?.uid?.let { userId ->
+            val orderId = System.currentTimeMillis().toString() // Hoặc một UUID.randomUUID().toString()
+//Sử dụng firestore.collection("checkouts").add(orderData) để thêm một tài liệu mới vào bộ sưu tập "checkouts".
             val orderData = hashMapOf(
                 "userId" to userId,
                 "orderId" to orderId,
@@ -394,7 +406,11 @@ class CheckoutActivity : AppCompatActivity() {
                 "phoneNumber" to phoneNumber,
                 "email" to email,
                 "deliveryAddress" to fullAddress,
-                "deliveryName" to if (newAddressLayout.visibility == View.VISIBLE) street else addressNameTextView.text.toString(),
+                "deliveryName" to if (newAddressLayout.visibility == View.VISIBLE) {
+                    "Home" // Hoặc tên người nhận cho địa chỉ mới
+                } else {
+                    addressNameTextView.text.toString() // Tên cho địa chỉ đã lưu
+                },
                 "deliveryNotes" to notes,
                 "paymentMethod" to paymentMethod,
                 "subtotal" to subtotalValue,
@@ -411,7 +427,11 @@ class CheckoutActivity : AppCompatActivity() {
                     )
                 },
                 "timestamp" to Timestamp.now(),
-                "paymentStatus" to if (paymentMethod == "Credit Card") "Pending" else "Chưa thanh toán"
+                "paymentStatus" to when (paymentMethod) {
+                    "Bank Transfer" -> "Chờ xác nhận" // Chờ người dùng quét và thanh toán
+                    "Cash on Delivery" -> "Chờ thanh toán" // Thanh toán khi nhận hàng
+                    else -> "Chưa xác định"
+                },
             )
 
             firestore.collection("checkouts")
@@ -427,16 +447,25 @@ class CheckoutActivity : AppCompatActivity() {
                         Toast.LENGTH_LONG
                     ).show()
 
-                    if (paymentMethod == "Credit Card") {
+                    // **BẮT ĐẦU CHỨC NĂNG TẠO MÃ QR TẠI ĐÂY**
+                    if (paymentMethod == "Bank Transfer") {
                         val intentToQR = Intent(this, QRCodePaymentActivity::class.java)
                         intentToQR.putExtra("totalAmount", totalValue)
                         intentToQR.putExtra("orderId", orderId)
+                        // Bạn có thể thêm thông tin ngân hàng vào đây nếu muốn hiển thị trong QR:
+                        // intentToQR.putExtra("bankName", "Ngân hàng ABC")
+                        // intentToQR.putExtra("accountNumber", "123456789")
+                        // intentToQR.putExtra("accountHolder", "Ten Chu Tai Khoan")
                         startActivity(intentToQR)
+                        finish() // Kết thúc CheckoutActivity ngay lập tức
                     } else {
-                        val intentToHome = Intent(this, HomeActivity::class.java)
+                        // Nếu là thanh toán tiền mặt, chuyển về trang chủ hoặc trang xác nhận
+                        val intentToHome = Intent(this, ProfileActivity::class.java)
                         startActivity(intentToHome)
                         finish() // Kết thúc CheckoutActivity
                     }
+
+                    // Cập nhật số lượng kho và xóa giỏ hàng
 
                     val batch = firestore.batch()
 
@@ -465,9 +494,9 @@ class CheckoutActivity : AppCompatActivity() {
                                     cartBatch.commit()
                                         .addOnSuccessListener {
                                             Log.d("Firestore", "Giỏ hàng đã được xóa sau khi đặt hàng")
-                                            if (paymentMethod != "Credit Card") {
-                                                finish() // Kết thúc CheckoutActivity sau khi xóa giỏ hàng nếu không chuyển sang QR
-                                            }
+                                            // Sau khi xóa giỏ hàng, nếu không phải chuyển khoản, thì finish.
+                                            // Nếu là chuyển khoản, đã finish phía trên rồi.
+                                            // Luồng hiện tại xử lý khá tốt.
                                         }
                                         .addOnFailureListener { e ->
                                             Log.e(
@@ -480,7 +509,6 @@ class CheckoutActivity : AppCompatActivity() {
                                                 "Lỗi khi xóa giỏ hàng",
                                                 Toast.LENGTH_SHORT
                                             ).show()
-                                            // Có thể xử lý lỗi xóa giỏ hàng ở đây
                                         }
                                 }
                                 .addOnFailureListener { e ->
@@ -490,7 +518,6 @@ class CheckoutActivity : AppCompatActivity() {
                                         "Lỗi khi truy vấn giỏ hàng",
                                         Toast.LENGTH_SHORT
                                     ).show()
-                                    // Có thể xử lý lỗi truy vấn giỏ hàng ở đây
                                 }
                         }
                         .addOnFailureListener { e ->
@@ -500,7 +527,6 @@ class CheckoutActivity : AppCompatActivity() {
                                 "Lỗi khi cập nhật số lượng kho",
                                 Toast.LENGTH_SHORT
                             ).show()
-                            // Có thể xử lý lỗi cập nhật kho ở đây
                         }
                 }
                 .addOnFailureListener { e ->

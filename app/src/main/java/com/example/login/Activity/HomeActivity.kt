@@ -98,30 +98,35 @@ class HomeActivity : AppCompatActivity() {
         progressBarPopular.visibility = View.VISIBLE
 
         db.collection("products")
-            .get()
-            .addOnSuccessListener { documents ->
-                productList.clear()
-                for (document in documents) {
-                    val name = document.getString("name") ?: ""
-                    val price = document.getString("price") ?: ""
-                    val imageUrl = document.getString("image_url") ?: ""
-
-                    productList.add(Product(name, price, imageUrl))
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Log.e("Firestore", "Lỗi lắng nghe thay đổi sản phẩm", e)
+                    progressBar.visibility = View.GONE
+                    progressBarCategory.visibility = View.GONE
+                    progressBarPopular.visibility = View.GONE
+                    return@addSnapshotListener
                 }
-                productAdapter.notifyDataSetChanged()
 
-                // Ẩn tất cả ProgressBar khi tải xong
-                progressBar.visibility = View.GONE
-                progressBarCategory.visibility = View.GONE
-                progressBarPopular.visibility = View.GONE
-            }
-            .addOnFailureListener { e ->
-                Log.e("Firestore", "Lỗi lấy dữ liệu", e)
+                if (snapshot != null) {
+                    productList.clear()
+                    for (document in snapshot.documents) {
+                        val name = document.getString("name") ?: ""
+                        val price = document.getString("price") ?: ""
+                        val imageUrl = document.getString("image_url") ?: ""
 
-                // Ẩn tất cả ProgressBar nếu có lỗi
-                progressBar.visibility = View.GONE
-                progressBarCategory.visibility = View.GONE
-                progressBarPopular.visibility = View.GONE
+                        productList.add(Product(name, price, imageUrl))
+                    }
+                    productAdapter.notifyDataSetChanged()
+                    progressBar.visibility = View.GONE
+                    progressBarCategory.visibility = View.GONE
+                    progressBarPopular.visibility = View.GONE
+                } else {
+                    Log.d("Firestore", "Không có dữ liệu sản phẩm.")
+                    progressBar.visibility = View.GONE
+                    progressBarCategory.visibility = View.GONE
+                    progressBarPopular.visibility = View.GONE
+                    // Có thể hiển thị thông báo "Không có sản phẩm" ở đây
+                }
             }
     }
     private fun setupBottomNavigationView() {
@@ -165,24 +170,31 @@ class HomeActivity : AppCompatActivity() {
         progressBarPopular.visibility = View.VISIBLE
 
         db.collection("products")
-            .whereEqualTo("popular", true) // Lọc sản phẩm phổ biến
-            .get()
-            .addOnSuccessListener { documents ->
-                popularList.clear()
-                for (document in documents) {
-                    val name = document.getString("name") ?: ""
-                    val price = document.getString("price") ?: ""
-                    val imageUrl = document.getString("image_url") ?: ""
-
-                    val product = Product(name, price, imageUrl)
-                    popularList.add(product)
+            .whereEqualTo("popular", true)
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Log.e("Firestore", "Lỗi lắng nghe thay đổi sản phẩm phổ biến", e)
+                    progressBarPopular.visibility = View.GONE
+                    return@addSnapshotListener
                 }
-                popularAdapter.notifyDataSetChanged()
-                progressBarPopular.visibility = View.GONE
-            }
-            .addOnFailureListener { e ->
-                Log.e("Firestore", "Lỗi lấy dữ liệu popular", e)
-                progressBarPopular.visibility = View.GONE
+
+                if (snapshot != null) {
+                    popularList.clear()
+                    for (document in snapshot.documents) {
+                        val name = document.getString("name") ?: ""
+                        val price = document.getString("price") ?: ""
+                        val imageUrl = document.getString("image_url") ?: ""
+
+                        val product = Product(name, price, imageUrl)
+                        popularList.add(product)
+                    }
+                    popularAdapter.notifyDataSetChanged()
+                    progressBarPopular.visibility = View.GONE
+                } else {
+                    Log.d("Firestore", "Không có dữ liệu sản phẩm phổ biến.")
+                    progressBarPopular.visibility = View.GONE
+                    // Có thể hiển thị thông báo "Không có sản phẩm phổ biến" ở đây
+                }
             }
     }
     private fun showPopupMenu(view: View) {

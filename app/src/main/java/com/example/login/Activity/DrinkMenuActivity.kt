@@ -17,6 +17,7 @@ import com.example.login.R
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.tabs.TabLayout
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import java.util.Locale
 
 class DrinkMenuActivity : AppCompatActivity() {
@@ -30,6 +31,8 @@ class DrinkMenuActivity : AppCompatActivity() {
     private val drinkList = mutableListOf<Drink>()
     private val originalDrinkList = mutableListOf<Drink>()
     private var currentTab: String = "All" // Mặc định là "All" khi mới khởi chạy
+    private var drinkListenerRegistration: ListenerRegistration? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,23 +58,39 @@ class DrinkMenuActivity : AppCompatActivity() {
         setupSearchFunctionality() // Gọi hàm thiết lập chức năng tìm kiếm
     }
 
+
+    override fun onStart() {
+        super.onStart()
+        fetchDrinksFromFirestore()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        drinkListenerRegistration?.remove()
+    }
+//lấy dữ liệu đồ uống
     private fun fetchDrinksFromFirestore() {
         val db = FirebaseFirestore.getInstance()
-        db.collection("drink").get()
-            .addOnSuccessListener { result ->
-                originalDrinkList.clear()
-                for (document in result) {
-                    val drink = document.toObject(Drink::class.java)
-                    drink?.documentId = document.id // Gán ID TỰ ĐỘNG
-                    originalDrinkList.add(drink)
+        drinkListenerRegistration = db.collection("drink")
+            .addSnapshotListener { result, exception ->
+                if (exception != null) {
+                    Log.w("DrinkMenuActivity", "Error getting documents: ", exception)
+                    Toast.makeText(this, "Failed to load drinks", Toast.LENGTH_SHORT).show()
+                    return@addSnapshotListener
                 }
-                filterDrinksByCategory(currentTab)
-            }
-            .addOnFailureListener { exception ->
-                Log.w("DrinkMenuActivity", "Error getting documents: ", exception)
-                Toast.makeText(this, "Failed to load drinks", Toast.LENGTH_SHORT).show()
+
+                if (result != null) {
+                    originalDrinkList.clear()
+                    for (document in result) {
+                        val drink = document.toObject(Drink::class.java)
+                        drink?.documentId = document.id
+                        originalDrinkList.add(drink)
+                    }
+                    filterDrinksByCategory(currentTab) // Lọc lại sau khi nhận dữ liệu mới
+                }
             }
     }
+
 
     private fun setupBottomNavigationView() {
         bottomNavigationView.setOnItemSelectedListener { item ->
@@ -110,7 +129,7 @@ class DrinkMenuActivity : AppCompatActivity() {
         val intent = Intent(this, activityClass)
         startActivity(intent)
     }
-
+//hiển thị các danh mục đồ uống.
     private fun setupTabLayout() {
         val tabLayout = findViewById<TabLayout>(R.id.tabLayout)
         tabLayout.addTab(tabLayout.newTab().setText("All"))
@@ -128,7 +147,7 @@ class DrinkMenuActivity : AppCompatActivity() {
             override fun onTabReselected(tab: TabLayout.Tab?) {}
         })
     }
-
+// lọc danh sách đồ uống
     private fun filterDrinksByCategory(category: String) {
         val filteredList = if (category == "All") {
             originalDrinkList // Hiển thị danh sách gốc nếu chọn "All"
@@ -140,7 +159,7 @@ class DrinkMenuActivity : AppCompatActivity() {
         adapter.notifyDataSetChanged()
     }
 
-    // CHỨC NĂNG TÌM KIẾM
+    // CHỨC NĂNG TÌM KIẾM , thiết lập chức năng tìm kiếm đồ uống theo tên.
     private fun setupSearchFunctionality() {
         searchEditText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -156,7 +175,7 @@ class DrinkMenuActivity : AppCompatActivity() {
             }
         })
     }
-
+//từ khóa tìm kiếm
     private fun filterDrinksBySearch(query: String) {
         val lowerCaseQuery = query.toLowerCase(Locale.getDefault())
         val filteredList = if (currentTab == "All") {

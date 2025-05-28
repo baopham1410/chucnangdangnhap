@@ -17,8 +17,8 @@ import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.example.login.Model.Drink
 import com.example.login.R
-import com.google.android.material.button.MaterialButton
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
@@ -69,9 +69,10 @@ class DrinkDetailActivity : AppCompatActivity() {
         currentDrink = drink
 
         drink?.let {
+            Log.d("DrinkDetail", "Document ID của sản phẩm: ${it.documentId}") // Thêm log này
             setupDrinkData(it)
             setupListeners(it)
-            loadCartQuantity(it.id.toString())
+            loadCartQuantity(it.documentId.toString()) // Sử dụng documentId ở đây
             startDrinkDetailsListener(it.documentId.toString()) // Lắng nghe cả giá và số lượng
         }
 
@@ -157,22 +158,27 @@ class DrinkDetailActivity : AppCompatActivity() {
             favoriteButton.setImageResource(R.drawable.ic_favorite_white)
         }
     }
-
+// tải số lượng của đồ uống hiện tại mà người dùng đã thêm vào giỏ hàng
     private fun loadCartQuantity(drinkId: String) {
+        Log.d("CartCheck", "loadCartQuantity() được gọi cho drinkId: $drinkId")
         currentUser?.uid?.let { userId ->
+            Log.d("CartCheck", "Đang tìm kiếm giỏ hàng cho userId: $userId và drinkId: $drinkId")
             firestore.collection("cart_items")
                 .whereEqualTo("userId", userId)
                 .whereEqualTo("drinkId", drinkId)
                 .get()
                 .addOnSuccessListener { querySnapshot ->
+                    Log.d("CartCheck", "Truy vấn giỏ hàng thành công, tìm thấy ${querySnapshot.size()} mục.")
                     if (!querySnapshot.isEmpty) {
                         val document = querySnapshot.documents[0]
-                        val quantity = document.getLong("quantity")?.toInt() ?: 1
+                        val quantity = document.getLong("quantity")?.toInt() ?: 0
+                        Log.d("CartCheck", "Số lượng trong giỏ hàng cho sản phẩm $drinkId là: $quantity")
                         currentQuantity = quantity
                         quantityTextView.text = quantity.toString()
                         cartCountTextView.text = quantity.toString()
                         cartCountTextView.visibility = View.VISIBLE
                     } else {
+                        Log.d("CartCheck", "Không tìm thấy sản phẩm $drinkId trong giỏ hàng.")
                         currentQuantity = 1
                         quantityTextView.text = "1"
                         cartCountTextView.visibility = View.GONE
@@ -180,20 +186,21 @@ class DrinkDetailActivity : AppCompatActivity() {
                     updatePriceDisplay()
                 }
                 .addOnFailureListener { e ->
-                    Log.w("Firestore", "Lỗi khi tải số lượng giỏ hàng", e)
+                    Log.w("Firestore", "Lỗi khi tải số lượng giỏ hàng cho drinkId: $drinkId", e)
                     currentQuantity = 1
                     quantityTextView.text = "1"
                     cartCountTextView.visibility = View.GONE
                     updatePriceDisplay()
                 }
         } ?: run {
+            Log.w("CartCheck", "Không có người dùng đăng nhập, không thể tải giỏ hàng.")
             currentQuantity = 1
             quantityTextView.text = "1"
             cartCountTextView.visibility = View.GONE
             updatePriceDisplay()
         }
     }
-
+// thiết lập sự kiện cho nút
     private fun setupListeners(drink: Drink) {
         backButton.setOnClickListener { finish() }
         favoriteButton.setOnClickListener { toggleFavorite(drink) }
@@ -238,6 +245,9 @@ class DrinkDetailActivity : AppCompatActivity() {
                                     .update("quantity", currentQuantity, "price", basePrice * currentSizeMultiplier)
                                     .addOnSuccessListener {
                                         Toast.makeText(this, "Đã cập nhật giỏ hàng", Toast.LENGTH_SHORT).show()
+                                        // Cập nhật số lượng trên biểu tượng giỏ hàng
+                                        cartCountTextView.text = currentQuantity.toString()
+                                        cartCountTextView.visibility = if (currentQuantity > 0) View.VISIBLE else View.GONE
                                     }
                                     .addOnFailureListener { e ->
                                         Toast.makeText(this, "Lỗi cập nhật giỏ hàng", Toast.LENGTH_SHORT).show()
@@ -247,6 +257,9 @@ class DrinkDetailActivity : AppCompatActivity() {
                                     .add(cartItem)
                                     .addOnSuccessListener { documentReference ->
                                         Toast.makeText(this, "Đã thêm vào giỏ hàng", Toast.LENGTH_SHORT).show()
+                                        // Cập nhật số lượng trên biểu tượng giỏ hàng
+                                        cartCountTextView.text = currentQuantity.toString()
+                                        cartCountTextView.visibility = View.VISIBLE
                                     }
                                     .addOnFailureListener { e ->
                                         Toast.makeText(this, "Lỗi thêm vào giỏ hàng", Toast.LENGTH_SHORT).show()
@@ -264,6 +277,7 @@ class DrinkDetailActivity : AppCompatActivity() {
             }
         }
     }
+    // xử lý việc thêm hoặc xóa đồ uống hiện tại khỏi danh sách yêu thích
     private fun toggleFavorite(drink: Drink) {
         currentUser?.uid?.let { userId ->
             isFavorite = !isFavorite
@@ -343,12 +357,13 @@ class DrinkDetailActivity : AppCompatActivity() {
             }
         }
     }
-
+// tính toán giá cuối cùng
     private fun updatePriceDisplay() {
         val calculatedPrice = basePrice * currentSizeMultiplier * currentQuantity
         val formattedPrice = String.format("%,.0fđ", calculatedPrice)
         tvPrice.text = formattedPrice
     }
+    // lắng nghe sự thay đổi của giá và số lượng
     private fun startDrinkDetailsListener(drinkDocumentId: String) {
         val drinkDocumentRef = firestore.collection("drink").document(drinkDocumentId)
         drinkListener = drinkDocumentRef.addSnapshotListener { snapshot, e ->
@@ -389,17 +404,23 @@ class DrinkDetailActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        currentDrink?.documentId?.let {
-            loadCartQuantity(currentDrink!!.id.toString())
+        currentDrink?.let { drink ->
+            val drinkId = drink.documentId.toString() // Sử dụng documentId ở đây
+            Log.d("CartCheck", "onResume() được gọi cho drinkId: $drinkId")
+            drinkId?.let {
+                loadCartQuantity(it)
+            }
             if (drinkListener == null) {
-                startDrinkDetailsListener(it)
+                startDrinkDetailsListener(drink.documentId.toString())
             }
-            // Thêm log để kiểm tra drinkId
-            val currentDrinkId = currentDrink?.id?.toString()
-            Log.d("FavoriteCheck", "onResume - Kiểm tra drinkId: $currentDrinkId")
-            currentDrinkId?.let { drinkId ->
-                checkIfDrinkIsFavorite(drinkId)
+            val currentDrinkIdForFavorite = drink.id?.toString() // Vẫn dùng id cho favorite nếu logic của bạn như vậy
+            Log.d("FavoriteCheck", "onResume - Kiểm tra drinkId cho yêu thích: $currentDrinkIdForFavorite")
+            currentDrinkIdForFavorite?.let { favoriteDrinkId ->
+                checkIfDrinkIsFavorite(favoriteDrinkId)
             }
+        } ?: run {
+            Log.w("CartCheck", "currentDrink là null trong onResume()")
+            // Xử lý trường hợp currentDrink là null nếu cần
         }
     }
 
@@ -407,6 +428,4 @@ class DrinkDetailActivity : AppCompatActivity() {
         super.onDestroy()
         stopDrinkDetailsListener()
     }
-
-
 }
